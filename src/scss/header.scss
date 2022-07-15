@@ -49,3 +49,122 @@
 	}
 }
 */
+
+.header {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 440px;
+	&__logo {
+		margin-top: 43px;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-weight: 300;
+		font-size: rem(48);
+		line-height: math.div(65, 48);
+		letter-spacing: 0.145em;
+		background: linear-gradient(90deg, #f8c297 0%, #691791 110.49%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+		text-fill-color: transparent;
+		text-shadow: 0px 0px 63px #740f64;
+		text-transform: uppercase;
+	}
+}
+.menu {
+	height: 100vh;
+	&__items {
+		position: absolute;
+		left: 229px;
+		top: 50%;
+		transform: translateY(-50%);
+		display: flex;
+		flex-direction: column;
+		row-gap: 50px;
+	}
+	&__item {
+		width: fit-content;
+		font-weight: 500;
+		font-size: rem(24);
+		line-height: math.div(29, 24);
+		color: rgba(255, 255, 255, 0.8);
+		&.active {
+			color: #f998ef;
+			padding-bottom: 10px;
+			border-bottom: 1px solid #f998ef;
+		}
+		&:nth-child(1) {
+			transform: translateX(-100%);
+		}
+		&:nth-child(2) {
+			transform: translateX(-19%);
+		}
+		&:nth-child(3) {
+			transform: translateX(0);
+		}
+		&:nth-child(4) {
+			transform: translateX(-2%);
+		}
+		&:nth-child(5) {
+			transform: translateX(-60%);
+		}
+		&:nth-child(6) {
+			transform: translateX(-100%);
+		}
+	}
+	&__link {
+	}
+}
+
+.menu-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100vh;
+
+	// .menu-bg__circle
+
+	&__circle {
+		width: 428px;
+		height: 428px;
+		background: linear-gradient(180deg, #ffa757 0%, rgba(183, 28, 250, 0.137812) 96.88%, rgba(181, 23, 255, 0.11) 100%);
+		border-radius: 50%;
+		position: absolute;
+		left: 0;
+		top: 55%;
+		transform: translate(-50%, -50%);
+		&::before {
+			content: "";
+			position: absolute;
+			width: 751px;
+			height: 751px;
+			border: 1px solid #ffffff;
+			border-radius: 50%;
+			top: 50%;
+			left: 65%;
+			transform: translate(-50%, -50%);
+		}
+
+		// .menu-bg__circle_mini
+
+		&_mini {
+			position: absolute;
+			width: 54px;
+			height: 54px;
+			background: linear-gradient(180deg, #fdc898 0%, rgba(181, 23, 255, 0.11) 100%);
+			transform: matrix(0.71, 0.71, 0.71, -0.71, 0, 0);
+			border-radius: 50%;
+			&.one-circle {
+				top: 158px;
+				left: 325px;
+			}
+			&.two-circle {
+				bottom: 120px;
+				left: 361px;
+			}
+		}
+	}
+}

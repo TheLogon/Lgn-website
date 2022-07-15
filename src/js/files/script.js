@@ -17,3 +17,13 @@ VANTA.NET({
 	spacing: 16.0,
 	showDots: false,
 })
+
+// parallax
+let circle1 = document.querySelector(".menu-bg__circle_mini.one-circle")
+let circle2 = document.querySelector(".menu-bg__circle_mini.two-circle")
+window.addEventListener("mousemove", function (e) {
+	let x = e.clientX / window.innerWidth
+	let y = e.clientY / window.innerHeight
+	circle1.style.transform = "translate(-" + x * 10 + "px, -" + y * 10 + "px)"
+	circle2.style.transform = "translate(-" + x * 10 + "px, -" + y * 10 + "px)"
+})
