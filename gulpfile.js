@@ -1,151 +1,68 @@
-let preprocessor = 'sass', // Preprocessor (sass, less, styl); 'sass' also work with the Scss syntax in blocks/ folder.
-		fileswatch   = 'html,htm,txt,json,md,woff2' // List of files extensions for watching & hard reload
+// Импорт основного модуля
+import gulp from "gulp";
+// Импорт общих плагинов
+import { plugins } from "./config/gulp-plugins.js";
+// Импорт путей
+import { path } from "./config/gulp-settings.js";
 
-import pkg from 'gulp'
-const { gulp, src, dest, parallel, series, watch } = pkg
-
-import browserSync   from 'browser-sync'
-import bssi          from 'browsersync-ssi'
-import ssi           from 'ssi'
-import webpackStream from 'webpack-stream'
-import webpack       from 'webpack'
-import TerserPlugin  from 'terser-webpack-plugin'
-import gulpSass      from 'gulp-sass'
-import dartSass      from 'sass'
-import sassglob      from 'gulp-sass-glob'
-const  sass          = gulpSass(dartSass)
-import less          from 'gulp-less'
-import lessglob      from 'gulp-less-glob'
-import styl          from 'gulp-stylus'
-import stylglob      from 'gulp-noop'
-import postCss       from 'gulp-postcss'
-import cssnano       from 'cssnano'
-import autoprefixer  from 'autoprefixer'
-import imagemin      from 'gulp-imagemin'
-import changed       from 'gulp-changed'
-import concat        from 'gulp-concat'
-import rsync         from 'gulp-rsync'
-import del           from 'del'
-
-function browsersync() {
-	browserSync.init({
-		server: {
-			baseDir: 'app/',
-			middleware: bssi({ baseDir: 'app/', ext: '.html' })
-		},
-		ghostMode: { clicks: false },
-		notify: false,
-		online: true,
-		// tunnel: 'yousutename', // Attempt to use the URL https://yousutename.loca.lt
-	})
+// Передаем значения в глобальную переменную
+global.app = {
+	isBuild: process.argv.includes('--build'),
+	isDev: !process.argv.includes('--build'),
+	isWebP: !process.argv.includes('--nowebp'),
+	isFontsReW: process.argv.includes('--rewrite'),
+	gulp: gulp,
+	path: path,
+	plugins: plugins
 }
 
-function scripts() {
-	return src(['app/js/*.js', '!app/js/*.min.js'])
-		.pipe(webpackStream({
-			mode: 'production',
-			performance: { hints: false },
-			plugins: [
-				new webpack.ProvidePlugin({ $: 'jquery', jQuery: 'jquery', 'window.jQuery': 'jquery' }), // jQuery (npm i jquery)
-			],
-			module: {
-				rules: [
-					{
-						test: /\.m?js$/,
-						exclude: /(node_modules)/,
-						use: {
-							loader: 'babel-loader',
-							options: {
-								presets: ['@babel/preset-env'],
-								plugins: ['babel-plugin-root-import']
-							}
-						}
-					}
-				]
-			},
-			optimization: {
-				minimize: true,
-				minimizer: [
-					new TerserPlugin({
-						terserOptions: { format: { comments: false } },
-						extractComments: false
-					})
-				]
-			},
-		}, webpack)).on('error', (err) => {
-			this.emit('end')
-		})
-		.pipe(concat('app.min.js'))
-		.pipe(dest('app/js'))
-		.pipe(browserSync.stream())
-}
+// Импорт задач
+import { reset } from "./config/gulp-tasks/reset.js";
+import { html } from "./config/gulp-tasks/html.js";
+import { css } from "./config/gulp-tasks/css.js";
+import { js } from "./config/gulp-tasks/js.js";
+import { jsp } from "./config/gulp-tasks/js-p.js";
+import { images } from "./config/gulp-tasks/images.js";
+import { ftp } from "./config/gulp-tasks/ftp.js";
+import { zip } from "./config/gulp-tasks/zip.js";
+import { sprite } from "./config/gulp-tasks/sprite.js";
+import { gitignore } from "./config/gulp-tasks/gitignore.js";
+import { otfToTtf, ttfToWoff, fonstStyle } from "./config/gulp-tasks/fonts.js";
 
-function styles() {
-	return src([`app/styles/${preprocessor}/*.*`, `!app/styles/${preprocessor}/_*.*`])
-		.pipe(eval(`${preprocessor}glob`)())
-		.pipe(eval(preprocessor)({ 'include css': true }))
-		.pipe(postCss([
-			autoprefixer({ grid: 'autoplace' }),
-			cssnano({ preset: ['default', { discardComments: { removeAll: true } }] })
-		]))
-		.pipe(concat('app.min.css'))
-		.pipe(dest('app/css'))
-		.pipe(browserSync.stream())
-}
+// Последовательная обработака шрифтов
+const fonts = gulp.series(reset, otfToTtf, ttfToWoff, fonstStyle);
+// Основные задачи будем выполнять параллельно после обработки шрифтов
+const devTasks = gulp.parallel(fonts, gitignore);
+// Основные задачи будем выполнять параллельно после обработки шрифтов
+const buildTasks = gulp.series(fonts, js, gulp.parallel(html, css, images, gitignore), jsp);
 
-function images() {
-	return src(['app/images/src/**/*'])
-		.pipe(changed('app/images/dist'))
-		.pipe(imagemin())
-		.pipe(dest('app/images/dist'))
-		.pipe(browserSync.stream())
-}
+// Экспорт задач
+export { html }
+export { css }
+export { js }
+export { images }
+export { fonts }
+export { sprite }
+export { ftp }
+export { zip }
 
-function buildcopy() {
-	return src([
-		'{app/js,app/css}/*.min.*',
-		'app/images/**/*.*',
-		'!app/images/src/**/*',
-		'app/fonts/**/*'
-	], { base: 'app/' })
-	.pipe(dest('dist'))
-}
+// Построение сценариев выполнения задач
+const development = gulp.series(devTasks);
+const build = gulp.series(buildTasks);
+const deployFTP = gulp.series(buildTasks, ftp);
+const deployZIP = gulp.series(buildTasks, zip);
 
-async function buildhtml() {
-	let includes = new ssi('app/', 'dist/', '/**/*.html')
-	includes.compile()
-	del('dist/parts', { force: true })
-}
+// Экспорт сценариев
+export { development }
+export { build }
+export { deployFTP }
+export { deployZIP }
 
-async function cleandist() {
-	del('dist/**/*', { force: true })
-}
+// Выполнение сценария по умолчанию
+gulp.task('default', development);
 
-function deploy() {
-	return src('dist/')
-		.pipe(rsync({
-			root: 'dist/',
-			hostname: 'username@yousite.com',
-			destination: 'yousite/public_html/',
-			// clean: true, // Mirror copy with file deletion
-			include: [/* '*.htaccess' */], // Included files to deploy,
-			exclude: [ '**/Thumbs.db', '**/*.DS_Store' ],
-			recursive: true,
-			archive: true,
-			silent: false,
-			compress: true
-		}))
-}
 
-function startwatch() {
-	watch(`app/styles/${preprocessor}/**/*`, { usePolling: true }, styles)
-	watch(['app/js/**/*.js', '!app/js/**/*.min.js'], { usePolling: true }, scripts)
-	watch('app/images/src/**/*', { usePolling: true }, images)
-	watch(`app/**/*.{${fileswatch}}`, { usePolling: true }).on('change', browserSync.reload)
-}
 
-export { scripts, styles, images, deploy }
-export let assets = series(scripts, styles, images)
-export let build = series(cleandist, images, scripts, styles, buildcopy, buildhtml)
 
-export default series(scripts, styles, images, parallel(browsersync, startwatch))
+
+
