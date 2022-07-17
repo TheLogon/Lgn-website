@@ -68,6 +68,8 @@
 		"webpack-stream": "latest"
 	},
 	"dependencies": {
-		"simplebar": "latest"
+		"fullpage.js": "^4.0.9",
+		"simplebar": "latest",
+		"simplex-noise": "^3.0.1"
 	}
 }

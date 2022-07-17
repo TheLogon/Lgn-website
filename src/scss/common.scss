@@ -1,4 +1,9 @@
 // Заголовки, общие БЄМ блоки и проче...
+.container {
+	max-width: 77%;
+	margin-left: auto;
+}
+
 .background {
 	height: 100vh;
 	width: 100vw;
@@ -7,3 +12,38 @@
 	left: 0;
 	z-index: -9999;
 }
+
+.line {
+	background: linear-gradient(90deg, #ffa757 0%, #691791 110.49%);
+	height: 1px;
+	width: 100%;
+}
+
+.btn {
+	display: flex;
+	align-items: center;
+	column-gap: 20px;
+	position: relative;
+	picture {
+		display: flex;
+		align-items: center;
+	}
+	&::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		width: 54px;
+		height: 54px;
+		background: linear-gradient(36deg, #fdc898 0%, rgba(181, 23, 255, 0.11) 100%);
+		// animation: bg-gradient 5s ease infinite;
+		border-radius: 50%;
+	}
+}
+
+// @keyframes bg-gradient {
+// 	100% {
+// 		background-position: 0 200px;
+// 	}
+// }
