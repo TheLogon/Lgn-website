@@ -100,13 +100,13 @@ function loop() {
 loop()
 
 var audio = new Audio()
-audio.src = "../files/music.mp3"
-audio.autoplay = true
+audio.src = "./files/music.mp3"
+audio.play()
 audio.loop = true
 // const audio = document.querySelector("#music")
 const audioBtn = document.querySelector(".header__music")
 
-console.log(audio)
+// console.log(audio)
 function togglePlay() {
 	if (audio.muted === true) {
 		audio.muted = false
